@@ -43,3 +43,89 @@ data_types:
   # Number of representative non-null values shown per column in the report
   sample_values_count: 5
   reports_dir: "outputs/reports"
+
+impossible_values:
+  reports_dir: "outputs/reports"
+  knowledge_base_path: "knowledge/learnings.json"
+  # Minimum violation rate before a rule finding is reported (0.0 = flag even one violation)
+  min_violation_rate: 0.0
+  # Rules — each must have a unique 'label' used for knowledge-base suppression.
+  # Supported types: range, date_order, not_null_if
+  # (type is inferred from config keys if not set explicitly)
+  rules:
+    # --- Numeric range checks ---
+    - label: nps_score_range
+      column: NPS_SCORE
+      min: 0
+      max: 10
+      description: "NPS score must be between 0 and 10 (inclusive)"
+
+    - label: csat_score_range
+      column: CSAT_SCORE
+      min: 1
+      max: 5
+      description: "CSAT score must be between 1 and 5 (inclusive)"
+
+    - label: handling_time_positive
+      column: TOTAL_HANDLING_TIME_SEC
+      min: 0
+      description: "Handling time in seconds must be non-negative"
+
+    - label: queue_wait_positive
+      column: QUEUE_WAIT_TIME_SEC
+      min: 0
+      description: "Queue wait time in seconds must be non-negative"
+
+    - label: agent_tenure_positive
+      column: AGENT_TENURE_MONTHS
+      min: 0
+      description: "Agent tenure in months must be non-negative"
+
+    - label: sla_target_positive
+      column: SLA_TARGET_SEC
+      min: 0
+      description: "SLA target in seconds must be non-negative"
+
+    - label: bot_message_count_positive
+      column: BOT_MESSAGE_COUNT
+      min: 0
+      description: "Bot message count must be non-negative"
+
+    - label: customer_message_count_positive
+      column: CUSTOMER_MESSAGE_COUNT
+      min: 0
+      description: "Customer message count must be non-negative"
+
+    # --- Date ordering checks ---
+    - label: created_before_queue_enter
+      type: date_order
+      earlier: CONTACT_CREATED_AT
+      later: QUEUE_ENTER_AT
+      description: "Contact must be created before it enters the queue"
+
+    - label: queue_enter_before_exit
+      type: date_order
+      earlier: QUEUE_ENTER_AT
+      later: QUEUE_EXIT_AT
+      description: "Queue entry must be before queue exit"
+
+    - label: queue_exit_before_resolved
+      type: date_order
+      earlier: QUEUE_EXIT_AT
+      later: RESOLVED_AT
+      description: "Queue exit must be before resolution timestamp"
+
+    # --- Logical dependency checks ---
+    - label: resolved_at_if_not_abandoned
+      type: not_null_if
+      when_column: IS_ABANDONED
+      when_value: false
+      then_column: RESOLVED_AT
+      description: "Contacts not marked as abandoned should have a resolution timestamp"
+
+    - label: ai_assisted_if_deflected
+      type: not_null_if
+      when_column: AI_DEFLECTED
+      when_value: true
+      then_column: AI_ASSISTED
+      description: "AI-deflected contacts must also be marked as AI-assisted"

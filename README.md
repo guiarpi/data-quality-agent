@@ -17,6 +17,9 @@ Profiles null rates across all columns. Flags always-null columns, high-null col
 **3. Data Type Profiling**
 Builds a full column-level profile: pandas dtype, inferred semantic type (identifier, boolean-like, categorical, timestamp, integer, decimal, free text), cardinality, uniqueness rate, min/max/mean for numeric and datetime columns, and a sample of representative values. Produces a summary of semantic type distribution across the dataset.
 
+**4. Impossible Values Detection**
+Evaluates configurable domain rules against the data and flags violations. Supports three rule types: numeric range checks (e.g. NPS must be 0–10), date ordering constraints (e.g. queue exit must be after queue entry), and logical dependency checks (e.g. non-abandoned contacts must have a resolution timestamp). Rules are defined in `agent_config.yaml` — no code changes required to add or adjust them.
+
 Reports are written as timestamped Markdown files so every run is traceable and comparable over time.
 
 ---
@@ -136,7 +139,7 @@ To use your own dictionary, update `dictionary_path` in `agent_config.yaml`. The
 - [x] Data dictionary coverage & type consistency
 - [x] Missing values profiling
 - [x] Data type profiling (semantic type inference, cardinality, uniqueness, min/max, sample values)
-- [ ] Impossible values — domain rules and range constraints
+- [x] Impossible values — range checks, date ordering, logical dependency rules
 - [ ] Invalid entries — format checks (email, phone, enum membership)
 - [ ] Outlier detection
 - [ ] Categorical cleaning

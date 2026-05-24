@@ -12,6 +12,7 @@ from agent.review.reviewer import run_review
 from agent.tasks.base_task import RunContext
 from agent.tasks.data_dictionary import DataDictionaryTask
 from agent.tasks.data_types import DataTypesTask
+from agent.tasks.impossible_values import ImpossibleValuesTask
 from agent.tasks.missing_values import MissingValuesTask
 
 TaskFactory = Callable[[], object]
@@ -20,6 +21,7 @@ TASK_FACTORIES: dict[str, TaskFactory] = {
     "data_dictionary": DataDictionaryTask,
     "missing_values": MissingValuesTask,
     "data_types": DataTypesTask,
+    "impossible_values": ImpossibleValuesTask,
 }
 
 

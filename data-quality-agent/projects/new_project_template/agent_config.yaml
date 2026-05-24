@@ -27,3 +27,31 @@ data_types:
   uniqueness_id_threshold: 0.99
   sample_values_count: 5
   reports_dir: "projects/new_project_template/outputs/reports"
+
+impossible_values:
+  reports_dir: "projects/new_project_template/outputs/reports"
+  knowledge_base_path: "projects/new_project_template/knowledge/learnings.json"
+  min_violation_rate: 0.0
+  # Add your domain rules here. Supported types: range, date_order, not_null_if
+  # Each rule must have a unique 'label' used for knowledge-base suppression.
+  # Examples:
+  #
+  # - label: score_range
+  #   column: NPS_SCORE
+  #   min: 0
+  #   max: 10
+  #   description: "NPS must be 0–10"
+  #
+  # - label: exit_after_enter
+  #   type: date_order
+  #   earlier: QUEUE_ENTER_AT
+  #   later: QUEUE_EXIT_AT
+  #   description: "Queue entry must be before exit"
+  #
+  # - label: resolved_if_not_abandoned
+  #   type: not_null_if
+  #   when_column: IS_ABANDONED
+  #   when_value: false
+  #   then_column: RESOLVED_AT
+  #   description: "Non-abandoned contacts must have a resolution timestamp"
+  rules: []
