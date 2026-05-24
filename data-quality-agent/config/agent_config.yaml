@@ -129,3 +129,49 @@ impossible_values:
       when_value: true
       then_column: AI_ASSISTED
       description: "AI-deflected contacts must also be marked as AI-assisted"
+
+invalid_entries:
+  reports_dir: "outputs/reports"
+  knowledge_base_path: "knowledge/learnings.json"
+  # Minimum violation rate before a finding is reported (0.0 = flag even one violation)
+  min_violation_rate: 0.0
+  # Automatically scan all string columns for placeholder / functional-null strings
+  check_placeholders: true
+  # Automatically scan all string columns for leading/trailing or double spaces
+  check_whitespace: true
+  # Configured rules — each must have a unique 'label'.
+  # Supported types: enum (allowed values list), pattern (regex)
+  rules:
+    - label: channel_enum
+      type: enum
+      column: CHANNEL
+      allowed: [email, chat, phone, portal]
+      case_insensitive: true
+      description: "Channel must be one of: email, chat, phone, portal"
+
+    - label: plan_tier_enum
+      type: enum
+      column: PLAN_TIER
+      allowed: [starter, growth, enterprise]
+      case_insensitive: true
+      description: "Plan tier must be one of: starter, growth, enterprise"
+
+    - label: agent_team_enum
+      type: enum
+      column: AGENT_TEAM
+      allowed: [tier-1, tier-2, solutions-engineering]
+      case_insensitive: true
+      description: "Agent team must be one of: tier-1, tier-2, solutions-engineering"
+
+    - label: journey_stage_enum
+      type: enum
+      column: CUSTOMER_JOURNEY_STAGE
+      allowed: [onboarding, active, renewal, churned]
+      case_insensitive: true
+      description: "Customer journey stage must be one of: onboarding, active, renewal, churned"
+
+    - label: contact_month_format
+      type: pattern
+      column: CONTACT_MONTH
+      pattern: '^\d{4}-\d{2}$'
+      description: "Contact month must be in YYYY-MM format"

@@ -406,6 +406,32 @@ def run_review(raw_findings: dict[str, Any]) -> int:
                 }
             )
 
+        for row in payload.get("invalid_entries", []):
+            sample_str = ", ".join(row.get("sample_values", []))
+            detail = (
+                f"{row['description']} — "
+                f"{row['violation_count']:,} violation(s) "
+                f"({row['violation_rate']:.1%} of evaluable rows); "
+                f"examples: {sample_str}"
+            )
+            if row.get("prior_note"):
+                detail += f" [Prior note: {row['prior_note']}]"
+            issue_type = (
+                "placeholder_value" if row["rule_type"] == "placeholder"
+                else "whitespace_anomaly" if row["rule_type"] == "whitespace"
+                else "invalid_entry"
+            )
+            queue.append(
+                {
+                    "task_name": task_name,
+                    "context": payload,
+                    "column": row["label"],
+                    "issue_type": issue_type,
+                    "expected_type": row["rule_type"],
+                    "detail": detail,
+                }
+            )
+
         for row in payload.get("impossible_values", []):
             sample_str = ", ".join(row.get("sample_values", []))
             detail = (

@@ -13,6 +13,7 @@ from agent.tasks.base_task import RunContext
 from agent.tasks.data_dictionary import DataDictionaryTask
 from agent.tasks.data_types import DataTypesTask
 from agent.tasks.impossible_values import ImpossibleValuesTask
+from agent.tasks.invalid_entries import InvalidEntriesTask
 from agent.tasks.missing_values import MissingValuesTask
 
 TaskFactory = Callable[[], object]
@@ -22,6 +23,7 @@ TASK_FACTORIES: dict[str, TaskFactory] = {
     "missing_values": MissingValuesTask,
     "data_types": DataTypesTask,
     "impossible_values": ImpossibleValuesTask,
+    "invalid_entries": InvalidEntriesTask,
 }
 
 

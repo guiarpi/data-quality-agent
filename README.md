@@ -20,6 +20,9 @@ Builds a full column-level profile: pandas dtype, inferred semantic type (identi
 **4. Impossible Values Detection**
 Evaluates configurable domain rules against the data and flags violations. Supports three rule types: numeric range checks (e.g. NPS must be 0–10), date ordering constraints (e.g. queue exit must be after queue entry), and logical dependency checks (e.g. non-abandoned contacts must have a resolution timestamp). Rules are defined in `agent_config.yaml` — no code changes required to add or adjust them.
 
+**5. Invalid Entries Detection**
+Flags values that are structurally malformed or semantically wrong in context. Runs configured rules (enum membership checks against an allowed-values list, regex pattern matching) alongside two automatic scans that require zero configuration: placeholder detection (catches functional nulls like `N/A`, `null`, `unknown`, `tbd` disguised as real values) and whitespace anomaly detection (leading/trailing spaces and double spaces that cause silent mismatches in joins and filters).
+
 Reports are written as timestamped Markdown files so every run is traceable and comparable over time.
 
 ---
@@ -140,7 +143,7 @@ To use your own dictionary, update `dictionary_path` in `agent_config.yaml`. The
 - [x] Missing values profiling
 - [x] Data type profiling (semantic type inference, cardinality, uniqueness, min/max, sample values)
 - [x] Impossible values — range checks, date ordering, logical dependency rules
-- [ ] Invalid entries — format checks (email, phone, enum membership)
+- [x] Invalid entries — enum checks, regex patterns, placeholder detection, whitespace anomalies
 - [ ] Outlier detection
 - [ ] Categorical cleaning
 - [ ] HTML report output option

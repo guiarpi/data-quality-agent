@@ -55,3 +55,24 @@ impossible_values:
   #   then_column: RESOLVED_AT
   #   description: "Non-abandoned contacts must have a resolution timestamp"
   rules: []
+
+invalid_entries:
+  reports_dir: "projects/new_project_template/outputs/reports"
+  knowledge_base_path: "projects/new_project_template/knowledge/learnings.json"
+  min_violation_rate: 0.0
+  check_placeholders: true
+  check_whitespace: true
+  # Add your format / enum rules here. Examples:
+  #
+  # - label: channel_enum
+  #   type: enum
+  #   column: CHANNEL
+  #   allowed: [email, chat, phone, portal]
+  #   description: "Channel must be one of the allowed values"
+  #
+  # - label: contact_month_format
+  #   type: pattern
+  #   column: CONTACT_MONTH
+  #   pattern: '^\d{4}-\d{2}$'
+  #   description: "Contact month must be in YYYY-MM format"
+  rules: []

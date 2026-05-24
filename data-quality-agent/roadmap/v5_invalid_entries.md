@@ -1,6 +1,6 @@
 # V5 — Invalid Entries Task
 
-**Status:** Planned
+**Status:** Complete
 
 ## Goal
 
