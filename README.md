@@ -6,7 +6,7 @@ A configurable Python agent for validating tabular datasets against a markdown d
 
 ## What it does
 
-Given a CSV file and a markdown data dictionary, the agent runs two automated quality checks:
+Given a CSV file and a markdown data dictionary, the agent runs a full suite of automated quality checks:
 
 **1. Data Dictionary Coverage & Type Consistency**
 Compares every column in the CSV against the dictionary. Flags columns missing from the dictionary, columns in the dictionary not present in the CSV, and columns where the actual data type conflicts with the declared type (Boolean, Integer, Timestamp, String).
@@ -47,16 +47,33 @@ Reports are written as timestamped Markdown files so every run is traceable and 
 ```
 data-quality-agent/
 ├── agent/
-│   ├── runner.py          # CLI orchestrator — prompts for task selection, runs pipeline
+│   ├── runner.py               # CLI orchestrator — task selection, pipeline, HTML dashboard
+│   ├── report/
+│   │   └── html_report.py      # Combines all task reports into a single HTML dashboard
+│   ├── review/
+│   │   └── reviewer.py         # Interactive terminal review loop + dictionary fix
 │   └── tasks/
-│       ├── base_task.py       # Abstract base class all tasks inherit from
-│       ├── data_dictionary.py # Coverage + type consistency checks
-│       └── missing_values.py  # Null profiling
+│       ├── base_task.py            # Abstract base class (BaseTask, RunContext, TaskResult)
+│       ├── data_dictionary.py      # Coverage + type consistency checks
+│       ├── missing_values.py       # Null profiling
+│       ├── data_types.py           # Semantic type, cardinality, stats, sample values
+│       ├── impossible_values.py    # Domain rule evaluation: range, date order, logic
+│       ├── invalid_entries.py      # Enum, regex, placeholder, whitespace checks
+│       ├── outliers.py             # IQR + Z-score + temporal outlier detection
+│       ├── categorical_cleaning.py # Case variants, fuzzy near-duplicates, low-frequency
+│       └── llm_dedup.py            # Optional LLM semantic deduplication (claude-haiku)
+├── ci/
+│   ├── generate_ci_data.py     # Synthetic CSV generator for GitHub Actions
+│   ├── ci_agent_config.yaml    # CI-specific agent config
+│   └── quality_gate.py         # Parses reports and fails CI on threshold breaches
 ├── config/
-│   └── agent_config.yaml  # All thresholds and paths — no code changes needed to reconfigure
-├── knowledge/             # Per-run learnings.json — human-reviewed false-positive suppression
+│   └── agent_config.yaml       # Default thresholds and paths — no code changes to reconfigure
+├── knowledge/
+│   └── knowledge_base.py       # Load / save / query learnings.json
+├── projects/
+│   └── new_project_template/   # Copy this to create an isolated per-project config
 ├── outputs/
-│   └── reports/           # Timestamped Markdown reports written here
+│   └── reports/                # Timestamped Markdown + HTML reports written here
 └── Documentation/
     └── SaaS_Support_Contact_Data_Dictionary.md  # Sample dictionary (fictional dataset)
 ```
@@ -77,17 +94,24 @@ pip install -r requirements.txt
 
 ## Configuration
 
-Edit `config/agent_config.yaml`:
+Edit `config/agent_config.yaml`. The file is organised into sections — one per task plus two global sections:
+
+**`data_dictionary`** (core — required for all tasks)
 
 | Key | Description | Default |
 |---|---|---|
 | `csv_path` | Path to the CSV file to validate (relative to `data-quality-agent/` or absolute) | — |
-| `dictionary_path` | Path to the markdown data dictionary (pipe table with Variable, Definition, Data Type columns) | — |
-| `sample_rows` | Number of rows to read from the CSV — keeps large files tractable | 10000 |
-| `case_insensitive_column_match` | Match dictionary variable names to CSV headers ignoring case | `true` |
-| `inconsistency_threshold` | Min fraction of non-null values violating declared type before a column is flagged | `0.05` |
-| `reports_dir` | Output directory for timestamped reports | `outputs/reports` |
-| `high_null_threshold` | Flag columns at or above this null rate | `0.50` |
+| `dictionary_path` | Path to the markdown data dictionary (pipe table: Variable, Definition, Data Type) | — |
+| `sample_rows` | Rows to read from the CSV — keeps large files tractable | `50000` |
+| `case_insensitive_column_match` | Match dictionary names to CSV headers ignoring case | `true` |
+| `inconsistency_threshold` | Min fraction of non-null values violating declared type before flagging | `0.05` |
+| `reports_dir` | Output directory for timestamped Markdown + HTML reports | `outputs/reports` |
+| `knowledge_base_path` | Path to the learnings JSON file | `knowledge/learnings.json` |
+
+**Other sections** (all optional — sensible defaults apply if omitted):
+`missing_values` · `data_types` · `impossible_values` · `invalid_entries` · `outliers` · `categorical_cleaning` · `html_report` · `llm_dedup`
+
+See the inline comments in `config/agent_config.yaml` for every key and its default.
 
 ---
 
@@ -118,14 +142,20 @@ python -m agent.runner --config /path/to/agent_config.yaml
 
 ## Output
 
-Reports are written to `outputs/reports/` as:
+Each run writes timestamped files to `outputs/reports/` (or the `reports_dir` configured for each task):
 
 ```
 data_dictionary_report_YYYYMMDD_HHMMSS.md
 missing_values_report_YYYYMMDD_HHMMSS.md
+data_types_report_YYYYMMDD_HHMMSS.md
+impossible_values_report_YYYYMMDD_HHMMSS.md
+invalid_entries_report_YYYYMMDD_HHMMSS.md
+outliers_report_YYYYMMDD_HHMMSS.md
+categorical_cleaning_report_YYYYMMDD_HHMMSS.md
+data_quality_dashboard_YYYYMMDD_HHMMSS.html   ← combined dashboard
 ```
 
-Each report is self-contained Markdown — readable in any editor, committable to git, or convertible to HTML/PDF for sharing.
+Each Markdown report is self-contained — readable in any editor, committable to git, and diffable across runs. The HTML dashboard combines all reports into a single page with KPI cards and sidebar navigation.
 
 ---
 

@@ -78,10 +78,10 @@ def _infer_semantic_type(
     # --- Object / string branch ---
     # Try datetime parse before uniqueness check so date columns with one
     # unique value per row are not mislabelled as "identifier".
+    # Use format='mixed' (pandas ≥ 2.0) to handle heterogeneous date strings
+    # without raising or silently coercing to NaT.
     try:
-        parsed = pd.to_datetime(
-            non_null, errors="coerce", infer_datetime_format=True, utc=True
-        )
+        parsed = pd.to_datetime(non_null, errors="coerce", format="mixed")
         parse_rate = parsed.notna().sum() / len(non_null)
         if parse_rate >= _TIMESTAMP_PARSE_THRESHOLD:
             return "timestamp"
@@ -121,7 +121,9 @@ def _column_stats(series: pd.Series, semantic_type: str, sample_count: int) -> d
 
     elif semantic_type == "timestamp":
         try:
-            parsed = pd.to_datetime(non_null, errors="coerce", utc=True).dropna()
+            parsed = pd.to_datetime(
+                non_null, errors="coerce", format="mixed"
+            ).dropna()
             if not parsed.empty:
                 stats["min"] = str(parsed.min())
                 stats["max"] = str(parsed.max())

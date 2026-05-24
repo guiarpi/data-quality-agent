@@ -82,8 +82,16 @@ def _eval_date_order(
     if not _col_present(df, earlier_col) or not _col_present(df, later_col):
         return None
 
-    earlier = pd.to_datetime(_get_col(df, earlier_col), errors="coerce", utc=True)
-    later = pd.to_datetime(_get_col(df, later_col), errors="coerce", utc=True)
+    try:
+        earlier = pd.to_datetime(
+            _get_col(df, earlier_col), errors="coerce", format="mixed", utc=True
+        )
+        later = pd.to_datetime(
+            _get_col(df, later_col), errors="coerce", format="mixed", utc=True
+        )
+    except TypeError:
+        earlier = pd.to_datetime(_get_col(df, earlier_col), errors="coerce", utc=True)
+        later = pd.to_datetime(_get_col(df, later_col), errors="coerce", utc=True)
 
     # Only evaluate rows where both values are non-null.
     both_present = earlier.notna() & later.notna()

@@ -101,7 +101,10 @@ def _check_timestamp(series: pd.Series, threshold: float) -> tuple[bool, str]:
     s = series.dropna()
     if s.empty:
         return True, "all null (handled by missing values task)"
-    parsed = pd.to_datetime(s, errors="coerce", utc=True)
+    try:
+        parsed = pd.to_datetime(s, errors="coerce", format="mixed")
+    except TypeError:
+        parsed = pd.to_datetime(s, errors="coerce")
     fail_rate = parsed.isna().sum() / len(s)
     if fail_rate >= threshold:
         sample = s[parsed.isna()].astype(str).head(5).tolist()
