@@ -2,14 +2,16 @@ from __future__ import annotations
 
 import argparse
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
 
 import pandas as pd
 import yaml
 
+from agent.report.html_report import render_html_report
 from agent.review.reviewer import run_review
-from agent.tasks.base_task import RunContext
+from agent.tasks.base_task import RunContext, TaskResult
 from agent.tasks.data_dictionary import DataDictionaryTask
 from agent.tasks.data_types import DataTypesTask
 from agent.tasks.impossible_values import ImpossibleValuesTask
@@ -133,6 +135,8 @@ def main(argv: list[str] | None = None) -> int:
     ctx = RunContext(base_dir=base_dir, config=config, sample_df=sample_df)
 
     task_raw_findings: dict[str, dict] = {}
+    task_results_ordered: list[tuple[str, TaskResult]] = []
+
     for task_name in selected_task_names:
         print("\n" + "=" * 60)
         print(f"RUNNING TASK: {task_name}")
@@ -155,6 +159,34 @@ def main(argv: list[str] | None = None) -> int:
         print("=" * 60)
 
         task_raw_findings[task_name] = result.raw_findings
+        task_results_ordered.append((task_name, result))
+
+    # ── HTML dashboard ──────────────────────────────────────────────────────
+    html_cfg = config.get("html_report", {})
+    if html_cfg.get("enabled", True) and task_results_ordered:
+        # Use the reports_dir from the first task that has one, else fallback.
+        reports_dir: Path | None = None
+        for _, r in task_results_ordered:
+            if r.report_path:
+                reports_dir = r.report_path.parent
+                break
+        if reports_dir is None:
+            dd_cfg_inner = config.get("data_dictionary", {})
+            reports_dir = (base_dir / dd_cfg_inner.get("reports_dir", "outputs/reports")).resolve()
+
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        timestamp_label = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+        html_path = reports_dir / f"data_quality_dashboard_{stamp}.html"
+        html_path.write_text(
+            render_html_report(
+                task_results=task_results_ordered,
+                config=config,
+                base_dir=base_dir,
+                timestamp=timestamp_label,
+            ),
+            encoding="utf-8",
+        )
+        print(f"\n[html_report] Dashboard: {html_path}")
 
     if task_raw_findings:
         run_review(

@@ -27,6 +27,23 @@ data_dictionary:
   # Knowledge base: stores human-reviewed learnings for false-positive suppression
   knowledge_base_path: "knowledge/learnings.json"
 
+html_report:
+  # Set to false to skip HTML dashboard generation
+  enabled: true
+
+llm_dedup:
+  # LLM-assisted semantic deduplication for categorical near-duplicate pairs.
+  # Requires: pip install anthropic  AND  ANTHROPIC_API_KEY env variable set.
+  # When disabled (default), only string-similarity is used.
+  enabled: false
+  model: "claude-haiku-4-5-20251001"
+  # Pairs with similarity >= min_similarity are sent to the LLM for assessment
+  min_similarity: 0.70
+  # Max pairs assessed per column per run (controls API cost)
+  max_pairs_per_column: 10
+  # API call timeout in seconds
+  timeout: 10
+
 missing_values:
   # Flag columns at or above this null rate as high-null
   high_null_threshold: 0.50

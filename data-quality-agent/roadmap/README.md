@@ -32,12 +32,17 @@ data quality lifecycle:
 | Statistics | IQR outliers, Z-score outliers, temporal anomalies |
 | Consistency | Case variants, near-duplicate labels, low-frequency categories |
 
+## Enhancements shipped
+
+| Enhancement | Module | Notes |
+| --- | --- | --- |
+| HTML dashboard | `agent/report/html_report.py` | Single self-contained file: KPI cards, sidebar nav, styled tables |
+| LLM semantic deduplication | `agent/tasks/llm_dedup.py` | claude-haiku-4-5 assesses fuzzy pairs; opt-in via config + API key |
+| CI/CD | `.github/workflows/data_quality.yml` | GitHub Actions: synthetic data → all tasks → quality gate → artifacts |
+
 ## Future enhancements
 
 | Enhancement | Notes |
 | --- | --- |
-| LLM-assisted semantic deduplication | Pass fuzzy candidate pairs to Claude with dictionary context |
-| HTML report output | Single-file dashboard across all tasks |
-| CI/CD integration | GitHub Actions workflow example |
 | Referential integrity | Foreign key validation across multiple CSV files |
 | Duplicate row detection | Exact and fuzzy row-level deduplication |

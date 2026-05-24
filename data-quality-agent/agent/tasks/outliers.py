@@ -246,7 +246,9 @@ class OutliersTask(BaseTask):
                 continue
 
             # --- Numeric columns ---
-            if not pd.api.types.is_numeric_dtype(series):
+            # Skip booleans — is_numeric_dtype returns True for bool but IQR
+            # arithmetic (subtraction) is not defined on boolean arrays.
+            if pd.api.types.is_bool_dtype(series) or not pd.api.types.is_numeric_dtype(series):
                 continue
 
             if non_null_count < min_non_null:

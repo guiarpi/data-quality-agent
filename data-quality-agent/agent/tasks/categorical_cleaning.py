@@ -10,6 +10,7 @@ from typing import Any
 import pandas as pd
 
 from agent.tasks.base_task import BaseTask, RunContext, TaskResult
+from agent.tasks.llm_dedup import assess_pairs as _llm_assess_pairs
 from knowledge.knowledge_base import KnowledgeBase
 
 _SAMPLE_SIZE = 5
@@ -132,6 +133,7 @@ class CategoricalCleaningTask(BaseTask):
     def run(self, ctx: RunContext) -> TaskResult:
         cfg = ctx.config.get("categorical_cleaning", {})
         dd_cfg = ctx.config.get("data_dictionary", {})
+        llm_cfg = ctx.config.get("llm_dedup", {})
 
         csv_path = (ctx.base_dir / dd_cfg["csv_path"]).resolve()
         sample_rows = int(dd_cfg.get("sample_rows", 50_000))
@@ -146,6 +148,14 @@ class CategoricalCleaningTask(BaseTask):
         kb_path = (
             ctx.base_dir / cfg.get("knowledge_base_path", "knowledge/learnings.json")
         ).resolve()
+
+        # Load data dictionary definitions for LLM context (best-effort).
+        dict_definitions: dict[str, str] = {}
+        dict_path_raw = dd_cfg.get("dictionary_path", "")
+        if dict_path_raw:
+            dict_file = (ctx.base_dir / dict_path_raw).resolve()
+            if dict_file.is_file():
+                dict_definitions = _parse_dict_definitions(dict_file.read_text(encoding="utf-8"))
 
         if ctx.sample_df is not None:
             df = ctx.sample_df
@@ -196,6 +206,16 @@ class CategoricalCleaningTask(BaseTask):
 
             # --- Fuzzy near-duplicate pairs ---
             fuzzy = _fuzzy_pairs(counts, similarity_threshold, variant_norms)
+
+            # --- LLM semantic assessment (optional) ---
+            if fuzzy and llm_cfg.get("enabled", False):
+                col_def = dict_definitions.get(col.casefold(), "")
+                fuzzy = _llm_assess_pairs(
+                    pairs=fuzzy,
+                    column=col,
+                    dict_definition=col_def,
+                    cfg=llm_cfg,
+                )
 
             # --- Low-frequency categories ---
             low_freq = _low_frequency(counts, total_rows, low_freq_threshold)
@@ -262,6 +282,49 @@ class CategoricalCleaningTask(BaseTask):
                 "kb_path": str(kb_path),
             },
         )
+
+
+# ---------------------------------------------------------------------------
+# Dictionary helper
+# ---------------------------------------------------------------------------
+
+def _parse_dict_definitions(md_text: str) -> dict[str, str]:
+    """Extract {variable_casefold: definition} from a Markdown pipe table.
+
+    Looks for a header row containing 'Variable' and 'Definition' columns
+    and reads subsequent data rows.  Returns an empty dict on any parse error.
+    """
+    definitions: dict[str, str] = {}
+    var_idx: int | None = None
+    def_idx: int | None = None
+
+    for line in md_text.splitlines():
+        stripped = line.strip()
+        if not stripped.startswith("|"):
+            continue
+        cells = [c.strip() for c in stripped.strip("|").split("|")]
+
+        # Locate header row
+        if var_idx is None:
+            lower_cells = [c.casefold() for c in cells]
+            if "variable" in lower_cells:
+                var_idx = lower_cells.index("variable")
+                if "definition" in lower_cells:
+                    def_idx = lower_cells.index("definition")
+            continue
+
+        # Skip separator row (---|---)
+        if all(set(c) <= {"-", " ", ":"} for c in cells if c):
+            continue
+
+        if len(cells) <= var_idx:
+            continue
+        var_name = cells[var_idx].casefold()
+        definition = cells[def_idx].strip() if def_idx is not None and len(cells) > def_idx else ""
+        if var_name:
+            definitions[var_name] = definition
+
+    return definitions
 
 
 # ---------------------------------------------------------------------------
@@ -349,15 +412,30 @@ def _render_report(
                 "These may be the same concept entered differently — verify before merging._"
             )
             lines.append("")
-            lines.extend([
-                "| Value A | Value B | Similarity | Count A | Count B |",
-                "| --- | --- | ---: | ---: | ---: |",
-            ])
-            for p in f["fuzzy_pairs"]:
-                lines.append(
-                    f"| `{p['a']}` | `{p['b']}` | {p['similarity']:.0%} "
-                    f"| {p['count_a']:,} | {p['count_b']:,} |"
-                )
+            has_llm = any("llm_verdict" in p for p in f["fuzzy_pairs"])
+            if has_llm:
+                lines.extend([
+                    "| Value A | Value B | Similarity | Count A | Count B | LLM verdict | Reasoning |",
+                    "| --- | --- | ---: | ---: | ---: | --- | --- |",
+                ])
+                _VERDICT_EMOJI = {"same": "✅ same", "different": "❌ different", "uncertain": "❓ uncertain"}
+                for p in f["fuzzy_pairs"]:
+                    verdict = _VERDICT_EMOJI.get(p.get("llm_verdict", ""), "")
+                    reasoning = p.get("llm_reasoning", "")
+                    lines.append(
+                        f"| `{p['a']}` | `{p['b']}` | {p['similarity']:.0%} "
+                        f"| {p['count_a']:,} | {p['count_b']:,} | {verdict} | {reasoning} |"
+                    )
+            else:
+                lines.extend([
+                    "| Value A | Value B | Similarity | Count A | Count B |",
+                    "| --- | --- | ---: | ---: | ---: |",
+                ])
+                for p in f["fuzzy_pairs"]:
+                    lines.append(
+                        f"| `{p['a']}` | `{p['b']}` | {p['similarity']:.0%} "
+                        f"| {p['count_a']:,} | {p['count_b']:,} |"
+                    )
             lines.append("")
 
         # Low-frequency

@@ -29,6 +29,15 @@ Runs both IQR (interquartile range) and Z-score methods on every numeric column 
 **7. Categorical Cleaning**
 Surfaces consistency issues in low-cardinality string columns. Detects case and whitespace variants of the same concept (e.g. `"Email"` vs `"email"` vs `"EMAIL"`), fuzzy near-duplicate labels using difflib similarity scoring (e.g. `"Amend Booking"` vs `"Amend a Booking"`), and low-frequency categories that may be noise or data entry errors. The agent surfaces candidates with similarity scores and occurrence counts — the human decides whether to merge.
 
+**8. HTML Dashboard**
+After all tasks complete, the agent generates a single self-contained HTML file combining every task report into one page — KPI summary cards at the top (colour-coded green/amber by finding count), a sticky sidebar for navigation, and fully styled Markdown tables. Enabled by default; toggled with `html_report.enabled` in config.
+
+**9. LLM Semantic Deduplication (optional)**
+When `llm_dedup.enabled: true` is set and `ANTHROPIC_API_KEY` is present, fuzzy near-duplicate label pairs from the categorical cleaning task are sent to `claude-haiku-4-5` alongside the column's dictionary definition. The model returns a verdict (`same` / `different` / `uncertain`) and a one-line reasoning string, surfaced in both Markdown and HTML reports. Gracefully skipped when the package or key is absent.
+
+**10. CI/CD**
+A GitHub Actions workflow (`.github/workflows/data_quality.yml`) runs on every push and pull request. It generates a synthetic 2,000-row CSV covering all dictionary columns, executes all quality tasks, and evaluates configurable thresholds via `ci/quality_gate.py` — failing the build if critical issue counts are exceeded. Reports are uploaded as downloadable workflow artifacts.
+
 Reports are written as timestamped Markdown files so every run is traceable and comparable over time.
 
 ---
@@ -153,10 +162,11 @@ To use your own dictionary, update `dictionary_path` in `agent_config.yaml`. The
 - [x] Outlier detection — IQR + Z-score on numeric columns, temporal outliers on timestamps
 - [x] Categorical cleaning — case variants, fuzzy near-duplicates, low-frequency categories
 
+- [x] HTML dashboard — single self-contained HTML file per run combining all task reports with KPI cards, sidebar navigation, and styled tables
+- [x] LLM-assisted semantic deduplication — optional claude-haiku-4-5 call to assess fuzzy near-duplicate label pairs with data dictionary context (opt-in via config + `ANTHROPIC_API_KEY`)
+- [x] CI/CD — GitHub Actions workflow that generates synthetic data, runs all tasks, and enforces configurable quality gate thresholds
+
 **Future enhancements**
-- [ ] LLM-assisted semantic deduplication (pass fuzzy candidates to Claude with dictionary context)
-- [ ] HTML report output
-- [ ] CI/CD integration example (GitHub Actions)
 - [ ] Referential integrity checks across multiple CSV files
 - [ ] Duplicate row detection
 
@@ -170,6 +180,6 @@ Initial architecture and planning by [Sean McIver](https://github.com/seanmciv) 
 
 ## Tech stack
 
-- **Python** — pandas, PyYAML
-- **Output** — Markdown reports (timestamped)
+- **Python** — pandas, PyYAML, markdown, anthropic (optional)
+- **Output** — Markdown reports (timestamped) + single-file HTML dashboard
 - **Config** — YAML (zero code changes to reconfigure for a new dataset)

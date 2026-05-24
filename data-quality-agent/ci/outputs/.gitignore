@@ -1,0 +1,7 @@
+# CI-generated outputs — not committed to the repository.
+# GitHub Actions uploads these as workflow artifacts instead.
+*.csv
+reports/*.md
+reports/*.html
+!reports/.gitkeep
+knowledge/learnings.json

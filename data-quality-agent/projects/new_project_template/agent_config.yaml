@@ -16,6 +16,19 @@ data_dictionary:
   reports_dir: "projects/new_project_template/outputs/reports"
   knowledge_base_path: "projects/new_project_template/knowledge/learnings.json"
 
+html_report:
+  # Set to false to skip HTML dashboard generation
+  enabled: true
+
+llm_dedup:
+  # LLM-assisted semantic deduplication for categorical near-duplicate pairs.
+  # Requires: pip install anthropic  AND  ANTHROPIC_API_KEY env variable set.
+  enabled: false
+  model: "claude-haiku-4-5-20251001"
+  min_similarity: 0.70
+  max_pairs_per_column: 10
+  timeout: 10
+
 missing_values:
   high_null_threshold: 0.50
   always_null_threshold: 1.00

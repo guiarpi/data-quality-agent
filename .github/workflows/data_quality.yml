@@ -1,0 +1,64 @@
+name: Data Quality
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel in-progress runs on the same branch when a new push arrives.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-check:
+    name: Run data quality agent
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── Checkout ────────────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── Python setup ────────────────────────────────────────────────────────
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: data-quality-agent/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r data-quality-agent/requirements.txt
+
+      # ── Generate synthetic CSV for CI ───────────────────────────────────────
+      # The sample dictionary ships with the repo; we generate a synthetic CSV
+      # that covers all declared columns so every task has data to analyse.
+      - name: Generate synthetic CSV
+        working-directory: data-quality-agent
+        run: python ci/generate_ci_data.py
+
+      # ── Run agent (non-interactive, all tasks) ───────────────────────────────
+      - name: Run data quality agent
+        working-directory: data-quality-agent
+        env:
+          # Optional: set this secret in your repo to enable LLM deduplication.
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python -m agent.runner --config ci/ci_agent_config.yaml
+
+      # ── Quality gate ────────────────────────────────────────────────────────
+      # Parse the generated reports and fail if critical issue counts exceed
+      # the thresholds defined in ci/quality_gate.py.
+      - name: Evaluate quality gate
+        working-directory: data-quality-agent
+        run: python ci/quality_gate.py --reports-dir ci/outputs/reports
+
+      # ── Upload reports ───────────────────────────────────────────────────────
+      - name: Upload reports
+        if: always()   # upload even if an earlier step failed
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-quality-reports-${{ github.run_number }}
+          path: data-quality-agent/ci/outputs/reports/
+          retention-days: 30

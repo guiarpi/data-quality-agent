@@ -80,6 +80,12 @@ flowchart TD
 | Task — Categorical Cleaning | `agent/tasks/categorical_cleaning.py` | Case variants, fuzzy near-duplicates (difflib), low-frequency categories |
 | Reviewer | `agent/review/reviewer.py` | Interactive terminal loop, fuzzy suggestions, dictionary fix |
 | Knowledge Base | `knowledge/knowledge_base.py` | Load / save / query learnings.json |
+| HTML Reporter | `agent/report/html_report.py` | Single self-contained HTML dashboard combining all task reports with KPI cards |
+| LLM Dedup | `agent/tasks/llm_dedup.py` | Optional claude-haiku-4-5 semantic assessment of fuzzy label pairs |
+| CI Data Generator | `ci/generate_ci_data.py` | Synthetic 2,000-row CSV for GitHub Actions runs |
+| CI Config | `ci/ci_agent_config.yaml` | Agent config used in CI (points at synthetic CSV) |
+| Quality Gate | `ci/quality_gate.py` | Parses reports and exits non-zero if thresholds exceeded |
+| GitHub Actions | `.github/workflows/data_quality.yml` | CI/CD workflow: runs on push/PR, enforces gate, uploads artifacts |
 | Config | `projects/<name>/agent_config.yaml` | Per-project paths and thresholds |
 | Learnings | `projects/<name>/knowledge/learnings.json` | Human decisions, isolated per project |
 
