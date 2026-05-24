@@ -1,0 +1,22 @@
+# Data files — too large for git
+Data downloads/
+
+# Large local example extracts (GitHub single-file limit ~100MB)
+Example datasets/*.csv
+
+# Python
+data-quality-agent/.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/

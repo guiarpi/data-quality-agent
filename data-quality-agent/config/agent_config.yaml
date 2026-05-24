@@ -1,0 +1,11 @@
+# Paths are relative to the data-quality-agent/ directory unless absolute.
+data_dictionary:
+  csv_path: "../Data downloads/Last_12_Months_Contacts.csv"
+  dictionary_path: "../Documentation/CBC_Contact_Level_Data_Dictionary.md"
+  sample_rows: 50000
+  case_insensitive_column_match: true
+  # Fraction of non-null values that must violate the expected type before flagging
+  inconsistency_threshold: 0.05
+  reports_dir: "outputs/reports"
+  # Path to the knowledge base file where human-reviewed learnings are stored
+  knowledge_base_path: "knowledge/learnings.json"

@@ -1,0 +1,23 @@
+# New project template
+# Steps to use:
+#   1. Copy this entire folder and rename it (e.g. "projects/my_dataset/")
+#   2. Update csv_path and dictionary_path to point to your files
+#   3. Update reports_dir and knowledge_base_path to match your folder name
+#   4. Run: python -m agent.runner --config projects/my_dataset/agent_config.yaml
+#
+# All paths are relative to the data-quality-agent/ directory.
+data_dictionary:
+  csv_path: "../path/to/your_data.csv"
+  dictionary_path: "../path/to/your_dictionary.md"
+  sample_rows: 50000
+  case_insensitive_column_match: true
+  # Fraction of non-null values that must violate the expected type before flagging
+  inconsistency_threshold: 0.05
+  reports_dir: "projects/new_project_template/outputs/reports"
+  knowledge_base_path: "projects/new_project_template/knowledge/learnings.json"
+
+missing_values:
+  high_null_threshold: 0.50
+  always_null_threshold: 1.00
+  reports_dir: "projects/new_project_template/outputs/reports"
+  knowledge_base_path: "projects/new_project_template/knowledge/learnings.json"
