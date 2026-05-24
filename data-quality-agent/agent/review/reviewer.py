@@ -432,6 +432,24 @@ def run_review(raw_findings: dict[str, Any]) -> int:
                 }
             )
 
+        for row in payload.get("outliers", []):
+            detail = row.get("detail", "")
+            if row.get("prior_note"):
+                detail += f" [Prior note: {row['prior_note']}]"
+            issue_type = (
+                "outlier_temporal" if row["check_type"] == "temporal" else "outlier"
+            )
+            queue.append(
+                {
+                    "task_name": task_name,
+                    "context": payload,
+                    "column": row["column"],
+                    "issue_type": issue_type,
+                    "expected_type": row["check_type"],
+                    "detail": detail,
+                }
+            )
+
         for row in payload.get("impossible_values", []):
             sample_str = ", ".join(row.get("sample_values", []))
             detail = (

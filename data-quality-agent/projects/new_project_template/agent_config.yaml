@@ -28,6 +28,17 @@ data_types:
   sample_values_count: 5
   reports_dir: "projects/new_project_template/outputs/reports"
 
+outliers:
+  reports_dir: "projects/new_project_template/outputs/reports"
+  knowledge_base_path: "projects/new_project_template/knowledge/learnings.json"
+  iqr_multiplier: 1.5
+  zscore_threshold: 3.0
+  min_non_null_rows: 30
+  temporal_min_year: 2020
+  temporal_max_year: 2035
+  # Add column names to skip (e.g. ID columns, foreign keys)
+  columns_exclude: []
+
 impossible_values:
   reports_dir: "projects/new_project_template/outputs/reports"
   knowledge_base_path: "projects/new_project_template/knowledge/learnings.json"

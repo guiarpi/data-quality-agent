@@ -1,6 +1,6 @@
 # V6 — Outliers Task
 
-**Status:** Planned
+**Status:** Complete
 
 ## Goal
 

@@ -15,6 +15,7 @@ from agent.tasks.data_types import DataTypesTask
 from agent.tasks.impossible_values import ImpossibleValuesTask
 from agent.tasks.invalid_entries import InvalidEntriesTask
 from agent.tasks.missing_values import MissingValuesTask
+from agent.tasks.outliers import OutliersTask
 
 TaskFactory = Callable[[], object]
 
@@ -24,6 +25,7 @@ TASK_FACTORIES: dict[str, TaskFactory] = {
     "data_types": DataTypesTask,
     "impossible_values": ImpossibleValuesTask,
     "invalid_entries": InvalidEntriesTask,
+    "outliers": OutliersTask,
 }
 
 

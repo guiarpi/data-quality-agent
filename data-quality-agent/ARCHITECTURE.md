@@ -76,6 +76,7 @@ flowchart TD
 | Task — Data Types | `agent/tasks/data_types.py` | Column profiling: semantic type, cardinality, stats, samples |
 | Task — Impossible Values | `agent/tasks/impossible_values.py` | Domain rule evaluation: range, date order, logical dependency |
 | Task — Invalid Entries | `agent/tasks/invalid_entries.py` | Format checks: enum, regex pattern, placeholder detection, whitespace |
+| Task — Outliers | `agent/tasks/outliers.py` | IQR + Z-score on numeric columns; temporal outliers on timestamps |
 | Reviewer | `agent/review/reviewer.py` | Interactive terminal loop, fuzzy suggestions, dictionary fix |
 | Knowledge Base | `knowledge/knowledge_base.py` | Load / save / query learnings.json |
 | Config | `projects/<name>/agent_config.yaml` | Per-project paths and thresholds |

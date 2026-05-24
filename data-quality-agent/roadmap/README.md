@@ -12,25 +12,23 @@ human review loop) is already in place — new tasks slot in without touching th
 | Data types | `v3_data_types.md` | Complete |
 | Impossible values | `v4_impossible_values.md` | Complete |
 | Invalid entries | `v5_invalid_entries.md` | Complete |
-| Outliers | `v6_outliers.md` | Planned |
+| Outliers | `v6_outliers.md` | Complete |
 | Categorical cleaning | `v7_categorical_cleaning.md` | Planned |
 
 ---
 
-## Next recommended task: Outliers
+## Next recommended task: Categorical Cleaning
 
-With five tasks complete, outlier detection is the natural next step.
+With six tasks complete, categorical cleaning is the final planned task.
 
 **Why now:**
-- Types, nulls, impossible values, and format issues are all resolved — outlier
-  detection on dirty data produces noisy results, so doing it last is correct.
-- Statistical methods (IQR, z-score) are well-understood and produce findings
-  that are immediately legible to a data analyst or hiring reviewer.
-- It uses the same review and knowledge-base loop with no new infrastructure.
+- All structural and statistical issues are resolved — categorical cleaning is the
+  most complex task and benefits from the full picture established by prior tasks.
+- Fuzzy deduplication of low-cardinality string columns (e.g. "New York" vs "new york"
+  vs "NY") directly extends the data types task's categorical detection.
 
 **Suggested order from here:**
 
 | Priority | Reasoning |
 | --- | --- |
-| 1. Outliers | Statistical; IQR + z-score on numeric columns; benefits from clean types |
-| 2. Categorical cleaning | Most complex; normalises free-text categories (fuzzy deduplication) |
+| 1. Categorical cleaning | Fuzzy deduplication on categorical columns; rounds out the full pipeline |

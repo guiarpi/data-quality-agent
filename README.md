@@ -23,6 +23,9 @@ Evaluates configurable domain rules against the data and flags violations. Suppo
 **5. Invalid Entries Detection**
 Flags values that are structurally malformed or semantically wrong in context. Runs configured rules (enum membership checks against an allowed-values list, regex pattern matching) alongside two automatic scans that require zero configuration: placeholder detection (catches functional nulls like `N/A`, `null`, `unknown`, `tbd` disguised as real values) and whitespace anomaly detection (leading/trailing spaces and double spaces that cause silent mismatches in joins and filters).
 
+**6. Outlier Detection**
+Runs both IQR (interquartile range) and Z-score methods on every numeric column and reports them side by side — letting the human reviewer decide which signal is more meaningful for each column. Also detects temporal outliers in timestamp columns (dates outside a configurable year range). Identifier columns can be excluded via config. All findings flow through the same knowledge-base review loop.
+
 Reports are written as timestamped Markdown files so every run is traceable and comparable over time.
 
 ---
@@ -144,7 +147,7 @@ To use your own dictionary, update `dictionary_path` in `agent_config.yaml`. The
 - [x] Data type profiling (semantic type inference, cardinality, uniqueness, min/max, sample values)
 - [x] Impossible values — range checks, date ordering, logical dependency rules
 - [x] Invalid entries — enum checks, regex patterns, placeholder detection, whitespace anomalies
-- [ ] Outlier detection
+- [x] Outlier detection — IQR + Z-score on numeric columns, temporal outliers on timestamps
 - [ ] Categorical cleaning
 - [ ] HTML report output option
 - [ ] CI/CD integration example (GitHub Actions)

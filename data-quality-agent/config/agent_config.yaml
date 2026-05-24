@@ -130,6 +130,24 @@ impossible_values:
       then_column: AI_ASSISTED
       description: "AI-deflected contacts must also be marked as AI-assisted"
 
+outliers:
+  reports_dir: "outputs/reports"
+  knowledge_base_path: "knowledge/learnings.json"
+  # IQR fences: Q1 − multiplier×IQR and Q3 + multiplier×IQR
+  iqr_multiplier: 1.5
+  # Z-score: flag values more than this many standard deviations from the mean
+  zscore_threshold: 3.0
+  # Skip columns with fewer than this many non-null values (too few for reliable stats)
+  min_non_null_rows: 30
+  # Flag timestamps outside this year range
+  temporal_min_year: 2020
+  temporal_max_year: 2035
+  # Columns to skip entirely — typically IDs and foreign keys
+  columns_exclude:
+    - CONTACT_ID
+    - AGENT_ID
+    - PREVIOUS_AGENT_ID
+
 invalid_entries:
   reports_dir: "outputs/reports"
   knowledge_base_path: "knowledge/learnings.json"
