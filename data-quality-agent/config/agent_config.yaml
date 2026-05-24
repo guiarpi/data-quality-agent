@@ -130,6 +130,25 @@ impossible_values:
       then_column: AI_ASSISTED
       description: "AI-deflected contacts must also be marked as AI-assisted"
 
+categorical_cleaning:
+  reports_dir: "outputs/reports"
+  knowledge_base_path: "knowledge/learnings.json"
+  # Only analyse columns with fewer than this many distinct values
+  max_cardinality: 50
+  # difflib similarity cutoff for near-duplicate detection (0–1)
+  similarity_threshold: 0.85
+  # Flag categories representing less than this fraction of rows
+  low_frequency_threshold: 0.01
+  # If set, only analyse these columns (leave empty to analyse all categorical columns)
+  columns_include: []
+  # Columns to skip entirely (e.g. free-text fields, IDs)
+  columns_exclude:
+    - CUSTOMER_COMMENT
+    - AI_CONVERSATION_SUMMARY
+    - CUSTOMER_INITIAL_QUERY
+    - PAGE_SOURCE
+    - SESSION_ID
+
 outliers:
   reports_dir: "outputs/reports"
   knowledge_base_path: "knowledge/learnings.json"

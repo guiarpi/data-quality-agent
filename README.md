@@ -26,6 +26,9 @@ Flags values that are structurally malformed or semantically wrong in context. R
 **6. Outlier Detection**
 Runs both IQR (interquartile range) and Z-score methods on every numeric column and reports them side by side — letting the human reviewer decide which signal is more meaningful for each column. Also detects temporal outliers in timestamp columns (dates outside a configurable year range). Identifier columns can be excluded via config. All findings flow through the same knowledge-base review loop.
 
+**7. Categorical Cleaning**
+Surfaces consistency issues in low-cardinality string columns. Detects case and whitespace variants of the same concept (e.g. `"Email"` vs `"email"` vs `"EMAIL"`), fuzzy near-duplicate labels using difflib similarity scoring (e.g. `"Amend Booking"` vs `"Amend a Booking"`), and low-frequency categories that may be noise or data entry errors. The agent surfaces candidates with similarity scores and occurrence counts — the human decides whether to merge.
+
 Reports are written as timestamped Markdown files so every run is traceable and comparable over time.
 
 ---
@@ -148,9 +151,14 @@ To use your own dictionary, update `dictionary_path` in `agent_config.yaml`. The
 - [x] Impossible values — range checks, date ordering, logical dependency rules
 - [x] Invalid entries — enum checks, regex patterns, placeholder detection, whitespace anomalies
 - [x] Outlier detection — IQR + Z-score on numeric columns, temporal outliers on timestamps
-- [ ] Categorical cleaning
-- [ ] HTML report output option
+- [x] Categorical cleaning — case variants, fuzzy near-duplicates, low-frequency categories
+
+**Future enhancements**
+- [ ] LLM-assisted semantic deduplication (pass fuzzy candidates to Claude with dictionary context)
+- [ ] HTML report output
 - [ ] CI/CD integration example (GitHub Actions)
+- [ ] Referential integrity checks across multiple CSV files
+- [ ] Duplicate row detection
 
 ---
 

@@ -13,22 +13,31 @@ human review loop) is already in place — new tasks slot in without touching th
 | Impossible values | `v4_impossible_values.md` | Complete |
 | Invalid entries | `v5_invalid_entries.md` | Complete |
 | Outliers | `v6_outliers.md` | Complete |
-| Categorical cleaning | `v7_categorical_cleaning.md` | Planned |
+| Categorical cleaning | `v7_categorical_cleaning.md` | Complete |
 
 ---
 
-## Next recommended task: Categorical Cleaning
+## All planned tasks complete 🎉
 
-With six tasks complete, categorical cleaning is the final planned task.
+All seven validation tasks are implemented. The pipeline now covers the full
+data quality lifecycle:
 
-**Why now:**
-- All structural and statistical issues are resolved — categorical cleaning is the
-  most complex task and benefits from the full picture established by prior tasks.
-- Fuzzy deduplication of low-cardinality string columns (e.g. "New York" vs "new york"
-  vs "NY") directly extends the data types task's categorical detection.
-
-**Suggested order from here:**
-
-| Priority | Reasoning |
+| Stage | What it detects |
 | --- | --- |
-| 1. Categorical cleaning | Fuzzy deduplication on categorical columns; rounds out the full pipeline |
+| Schema | Missing definitions, extra dictionary variables, type conflicts |
+| Completeness | Always-null columns, high-null columns |
+| Type profile | Semantic type, cardinality, uniqueness, stats, sample values |
+| Domain logic | Range violations, date ordering, logical dependencies |
+| Format validity | Enum mismatches, regex patterns, placeholder strings, whitespace |
+| Statistics | IQR outliers, Z-score outliers, temporal anomalies |
+| Consistency | Case variants, near-duplicate labels, low-frequency categories |
+
+## Future enhancements
+
+| Enhancement | Notes |
+| --- | --- |
+| LLM-assisted semantic deduplication | Pass fuzzy candidate pairs to Claude with dictionary context |
+| HTML report output | Single-file dashboard across all tasks |
+| CI/CD integration | GitHub Actions workflow example |
+| Referential integrity | Foreign key validation across multiple CSV files |
+| Duplicate row detection | Exact and fuzzy row-level deduplication |

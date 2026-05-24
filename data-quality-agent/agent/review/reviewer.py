@@ -432,6 +432,35 @@ def run_review(raw_findings: dict[str, Any]) -> int:
                 }
             )
 
+        for row in payload.get("categorical_findings", []):
+            parts = []
+            if row["has_case_variants"]:
+                n = len(row["case_variant_groups"])
+                parts.append(f"{n} case/whitespace variant group(s)")
+            if row["has_fuzzy_pairs"]:
+                n = len(row["fuzzy_pairs"])
+                top = row["fuzzy_pairs"][0]
+                parts.append(
+                    f"{n} fuzzy pair(s) (top: '{top['a']}' vs '{top['b']}' "
+                    f"at {top['similarity']:.0%})"
+                )
+            if row["has_low_frequency"]:
+                n = len(row["low_frequency"])
+                parts.append(f"{n} low-frequency value(s)")
+            detail = f"{row['distinct_values']} distinct values — " + "; ".join(parts)
+            if row.get("prior_note"):
+                detail += f" [Prior note: {row['prior_note']}]"
+            queue.append(
+                {
+                    "task_name": task_name,
+                    "context": payload,
+                    "column": row["column"],
+                    "issue_type": "categorical_cleaning",
+                    "expected_type": "categorical",
+                    "detail": detail,
+                }
+            )
+
         for row in payload.get("outliers", []):
             detail = row.get("detail", "")
             if row.get("prior_note"):

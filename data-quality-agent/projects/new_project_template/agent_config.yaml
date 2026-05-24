@@ -28,6 +28,16 @@ data_types:
   sample_values_count: 5
   reports_dir: "projects/new_project_template/outputs/reports"
 
+categorical_cleaning:
+  reports_dir: "projects/new_project_template/outputs/reports"
+  knowledge_base_path: "projects/new_project_template/knowledge/learnings.json"
+  max_cardinality: 50
+  similarity_threshold: 0.85
+  low_frequency_threshold: 0.01
+  columns_include: []
+  # Add free-text or ID columns to exclude from categorical analysis
+  columns_exclude: []
+
 outliers:
   reports_dir: "projects/new_project_template/outputs/reports"
   knowledge_base_path: "projects/new_project_template/knowledge/learnings.json"

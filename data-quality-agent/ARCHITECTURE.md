@@ -77,6 +77,7 @@ flowchart TD
 | Task — Impossible Values | `agent/tasks/impossible_values.py` | Domain rule evaluation: range, date order, logical dependency |
 | Task — Invalid Entries | `agent/tasks/invalid_entries.py` | Format checks: enum, regex pattern, placeholder detection, whitespace |
 | Task — Outliers | `agent/tasks/outliers.py` | IQR + Z-score on numeric columns; temporal outliers on timestamps |
+| Task — Categorical Cleaning | `agent/tasks/categorical_cleaning.py` | Case variants, fuzzy near-duplicates (difflib), low-frequency categories |
 | Reviewer | `agent/review/reviewer.py` | Interactive terminal loop, fuzzy suggestions, dictionary fix |
 | Knowledge Base | `knowledge/knowledge_base.py` | Load / save / query learnings.json |
 | Config | `projects/<name>/agent_config.yaml` | Per-project paths and thresholds |
