@@ -11,6 +11,7 @@ import yaml
 from agent.review.reviewer import run_review
 from agent.tasks.base_task import RunContext
 from agent.tasks.data_dictionary import DataDictionaryTask
+from agent.tasks.data_types import DataTypesTask
 from agent.tasks.missing_values import MissingValuesTask
 
 TaskFactory = Callable[[], object]
@@ -18,6 +19,7 @@ TaskFactory = Callable[[], object]
 TASK_FACTORIES: dict[str, TaskFactory] = {
     "data_dictionary": DataDictionaryTask,
     "missing_values": MissingValuesTask,
+    "data_types": DataTypesTask,
 }
 
 
@@ -102,7 +104,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     base_dir = _default_base_dir()
-    config_path = args.config or (base_dir / "projects" / "cbc_contacts" / "agent_config.yaml")
+    config_path = args.config or (base_dir / "config" / "agent_config.yaml")
     if not config_path.is_file():
         print(f"Config not found: {config_path}", file=sys.stderr)
         return 1

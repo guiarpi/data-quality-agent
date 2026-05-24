@@ -1,11 +1,45 @@
+# Data Quality Agent — default configuration
+#
 # Paths are relative to the data-quality-agent/ directory unless absolute.
+#
+# Quick start:
+#   1. Set csv_path to your CSV file (relative or absolute)
+#   2. Set dictionary_path to your markdown data dictionary
+#   3. Run: python -m agent.runner
+#
+# For project-specific configs, copy projects/new_project_template/ and update
+# paths there, then run: python -m agent.runner --config projects/<name>/agent_config.yaml
+
 data_dictionary:
-  csv_path: "../Data downloads/Last_12_Months_Contacts.csv"
-  dictionary_path: "../Documentation/CBC_Contact_Level_Data_Dictionary.md"
+  # Path to the CSV file to validate
+  csv_path: "../path/to/your_data.csv"
+  # Path to the markdown data dictionary (pipe table with Variable, Definition, Data Type columns)
+  # A sample fictional dictionary is included — point here to try the agent immediately:
+  dictionary_path: "../Documentation/SaaS_Support_Contact_Data_Dictionary.md"
+  # Number of rows to read from the CSV (keeps large files tractable)
   sample_rows: 50000
+  # Match dictionary variable names to CSV headers ignoring case
   case_insensitive_column_match: true
-  # Fraction of non-null values that must violate the expected type before flagging
+  # Fraction of non-null values that must violate the declared type before flagging a column
   inconsistency_threshold: 0.05
+  # Output directory for timestamped Markdown reports
   reports_dir: "outputs/reports"
-  # Path to the knowledge base file where human-reviewed learnings are stored
+  # Knowledge base: stores human-reviewed learnings for false-positive suppression
   knowledge_base_path: "knowledge/learnings.json"
+
+missing_values:
+  # Flag columns at or above this null rate as high-null
+  high_null_threshold: 0.50
+  # Flag columns at or above this null rate as always-null (1.00 = 100%)
+  always_null_threshold: 1.00
+  reports_dir: "outputs/reports"
+  knowledge_base_path: "knowledge/learnings.json"
+
+data_types:
+  # Max distinct values before a column is no longer called "categorical"
+  categorical_cardinality_max: 20
+  # Unique rate at or above which a column is flagged as a likely identifier/key
+  uniqueness_id_threshold: 0.99
+  # Number of representative non-null values shown per column in the report
+  sample_values_count: 5
+  reports_dir: "outputs/reports"

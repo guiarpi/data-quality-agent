@@ -20,7 +20,7 @@ pip install -r requirements.txt
 Edit [`config/agent_config.yaml`](config/agent_config.yaml):
 
 - `csv_path` — path to the CSV (relative to `data-quality-agent/`, or absolute).
-- `dictionary_path` — markdown file with a pipe table containing **Variable**, **Definition**, and **Data Type** columns (see `../Documentation/CBC_Contact_Level_Data_Dictionary.md`).
+- `dictionary_path` — markdown file with a pipe table containing **Variable**, **Definition**, and **Data Type** columns. A sample fictional dictionary is included at `../Documentation/SaaS_Support_Contact_Data_Dictionary.md`.
 - `sample_rows` — number of rows to read from the CSV for profiling (keeps large files tractable).
 - `case_insensitive_column_match` — when `true`, dictionary variable names are matched to CSV headers ignoring case (recommended when the dictionary is upper case and the CSV is lower case).
 - `inconsistency_threshold` — minimum fraction of non-null values that must violate the expected type before a column is flagged (default `0.05`).

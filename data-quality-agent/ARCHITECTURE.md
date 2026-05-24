@@ -70,8 +70,10 @@ flowchart TD
 
 | Component | File | Purpose |
 | --- | --- | --- |
-| Runner | `agent/runner.py` | CLI entry point, loads config, calls task then review |
-| Task | `agent/tasks/data_dictionary.py` | Core analysis — gap detection and type checking |
+| Runner | `agent/runner.py` | CLI entry point, loads config, calls tasks then review |
+| Task — Data Dictionary | `agent/tasks/data_dictionary.py` | Gap detection: missing definitions, extra vars, type conflicts |
+| Task — Missing Values | `agent/tasks/missing_values.py` | Null profiling: always-null, high-null columns |
+| Task — Data Types | `agent/tasks/data_types.py` | Column profiling: semantic type, cardinality, stats, samples |
 | Reviewer | `agent/review/reviewer.py` | Interactive terminal loop, fuzzy suggestions, dictionary fix |
 | Knowledge Base | `knowledge/knowledge_base.py` | Load / save / query learnings.json |
 | Config | `projects/<name>/agent_config.yaml` | Per-project paths and thresholds |

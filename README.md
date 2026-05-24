@@ -14,6 +14,9 @@ Compares every column in the CSV against the dictionary. Flags columns missing f
 **2. Missing Values Profiling**
 Profiles null rates across all columns. Flags always-null columns, high-null columns (configurable threshold), and produces a ranked summary of missingness — the inputs a data analyst needs to decide whether a column is usable.
 
+**3. Data Type Profiling**
+Builds a full column-level profile: pandas dtype, inferred semantic type (identifier, boolean-like, categorical, timestamp, integer, decimal, free text), cardinality, uniqueness rate, min/max/mean for numeric and datetime columns, and a sample of representative values. Produces a summary of semantic type distribution across the dataset.
+
 Reports are written as timestamped Markdown files so every run is traceable and comparable over time.
 
 ---
@@ -30,7 +33,7 @@ data-quality-agent/
 │       └── missing_values.py  # Null profiling
 ├── config/
 │   └── agent_config.yaml  # All thresholds and paths — no code changes needed to reconfigure
-├── knowledge/             # Future: learnings file for false-positive suppression
+├── knowledge/             # Per-run learnings.json — human-reviewed false-positive suppression
 ├── outputs/
 │   └── reports/           # Timestamped Markdown reports written here
 └── Documentation/
@@ -130,10 +133,14 @@ To use your own dictionary, update `dictionary_path` in `agent_config.yaml`. The
 
 ## Roadmap
 
+- [x] Data dictionary coverage & type consistency
+- [x] Missing values profiling
+- [x] Data type profiling (semantic type inference, cardinality, uniqueness, min/max, sample values)
+- [ ] Impossible values — domain rules and range constraints
+- [ ] Invalid entries — format checks (email, phone, enum membership)
+- [ ] Outlier detection
+- [ ] Categorical cleaning
 - [ ] HTML report output option
-- [ ] Duplicate row detection task
-- [ ] Referential integrity checks (foreign key validation across tables)
-- [ ] Knowledge base integration for false-positive suppression
 - [ ] CI/CD integration example (GitHub Actions)
 
 ---

@@ -1,6 +1,6 @@
 # V3 — Data Types Task
 
-**Status:** Planned
+**Status:** Complete
 
 ## Goal
 

@@ -21,3 +21,9 @@ missing_values:
   always_null_threshold: 1.00
   reports_dir: "projects/new_project_template/outputs/reports"
   knowledge_base_path: "projects/new_project_template/knowledge/learnings.json"
+
+data_types:
+  categorical_cardinality_max: 20
+  uniqueness_id_threshold: 0.99
+  sample_values_count: 5
+  reports_dir: "projects/new_project_template/outputs/reports"

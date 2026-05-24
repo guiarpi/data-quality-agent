@@ -7,7 +7,7 @@
 Flag values that are logically impossible given what a column represents — not just
 the wrong type, but outside a valid range or violating a business rule.
 
-Examples from the CBC data set:
+Examples from a SaaS support dataset:
 - NPS or CSAT score outside 0–10
 - TOTAL_HANDLING_TIME_SEC is negative
 - EXIT_QUEUE_DATE_TIME is earlier than ENTER_QUEUE_DATE_TIME
@@ -29,7 +29,7 @@ Two sources:
 
 **1. A rules file per project** (new concept)
 ```yaml
-# projects/cbc_contacts/rules.yaml
+# projects/my_project/rules.yaml
 impossible_values:
   - column: NPS
     min: 0
