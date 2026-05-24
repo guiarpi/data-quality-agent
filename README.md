@@ -1,6 +1,6 @@
 # Data Quality Agent
 
-A configurable Python agent that validates CSV datasets against a markdown data dictionary and produces structured quality reports. Built to be generalizable across any tabular dataset — no hardcoded schema assumptions.
+A configurable Python agent for validating tabular datasets against a markdown data dictionary. Given a CSV and a schema definition, it detects missing column coverage, type inconsistencies, and null-value anomalies — then surfaces findings through an interactive review loop that learns which issues are false positives, so each subsequent run is cleaner than the last. Built to be dataset-agnostic: no hardcoded schema assumptions, all thresholds configurable via YAML.
 
 ---
 
