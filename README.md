@@ -2,13 +2,11 @@
 
 A configurable Python agent for validating tabular datasets against a markdown data dictionary. Given a CSV and a schema definition, it detects missing column coverage, type inconsistencies, and null-value anomalies — then surfaces findings through an interactive review loop that learns which issues are false positives, so each subsequent run is cleaner than the last. Built to be dataset-agnostic: no hardcoded schema assumptions, all thresholds configurable via YAML.
 
-> **New here? Start with [QUICKSTART.md](QUICKSTART.md)** — a step-by-step guide
-> that has you running the agent on bundled synthetic data in about two minutes,
-> then on a real 24-million-row public dataset. No download needed for the first run.
->
-> **Want to see what it finds?** [CASE_STUDY.md](CASE_STUDY.md) documents a run
-> against 50,000 rows of live NYC 311 data — including a timestamp-truncation
-> defect affecting 20.4% of records — plus the engineering learnings from building it.
+
+## Quick Start 
+Start with [QUICKSTART.md](QUICKSTART.md) — a step-by-step guide that has you running the agent on bundled synthetic data in about two minutes, then on a real 24-million-row public dataset. No download needed for the first run.
+
+> **Want to see what it finds?** [CASE_STUDY.md](CASE_STUDY.md) documents a run against 50,000 rows of live NYC 311 data — including a timestamp-truncation efect affecting 20.4% of records — plus the engineering learnings from building it.
 
 ---
 
