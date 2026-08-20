@@ -1,3 +1,6 @@
+# Personal / career material — never publish
+_private/
+
 # Data files — too large for git
 Data downloads/
 

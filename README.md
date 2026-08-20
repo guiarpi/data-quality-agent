@@ -5,6 +5,10 @@ A configurable Python agent for validating tabular datasets against a markdown d
 > **New here? Start with [QUICKSTART.md](QUICKSTART.md)** — a step-by-step guide
 > that has you running the agent on bundled synthetic data in about two minutes,
 > then on a real 24-million-row public dataset. No download needed for the first run.
+>
+> **Want to see what it finds?** [CASE_STUDY.md](CASE_STUDY.md) documents a run
+> against 50,000 rows of live NYC 311 data — including a timestamp-truncation
+> defect affecting 20.4% of records — plus the engineering learnings from building it.
 
 ---
 
