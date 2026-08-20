@@ -80,8 +80,10 @@ def _infer_semantic_type(
     # unique value per row are not mislabelled as "identifier".
     # Use format='mixed' (pandas ≥ 2.0) to handle heterogeneous date strings
     # without raising or silently coercing to NaT.
+    # utc=True keeps the result as datetime64 even when the column mixes UTC
+    # offsets; without it pandas returns object dtype and warns.
     try:
-        parsed = pd.to_datetime(non_null, errors="coerce", format="mixed")
+        parsed = pd.to_datetime(non_null, errors="coerce", format="mixed", utc=True)
         parse_rate = parsed.notna().sum() / len(non_null)
         if parse_rate >= _TIMESTAMP_PARSE_THRESHOLD:
             return "timestamp"
@@ -122,7 +124,7 @@ def _column_stats(series: pd.Series, semantic_type: str, sample_count: int) -> d
     elif semantic_type == "timestamp":
         try:
             parsed = pd.to_datetime(
-                non_null, errors="coerce", format="mixed"
+                non_null, errors="coerce", format="mixed", utc=True
             ).dropna()
             if not parsed.empty:
                 stats["min"] = str(parsed.min())

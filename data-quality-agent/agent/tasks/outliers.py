@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -63,8 +64,10 @@ def _zscore_outliers(
     mean = float(s.mean())
     std = float(s.std())
 
-    if std == 0:
-        return {"threshold": threshold, "mean": _fmt(mean), "std": "0",
+    # A zero, NaN or infinite std makes Z-scores meaningless (constant column,
+    # a single non-null value, or overflow from extreme magnitudes).
+    if std == 0 or not math.isfinite(std) or not math.isfinite(mean):
+        return {"threshold": threshold, "mean": _fmt(mean), "std": _fmt(std),
                 "low_count": 0, "high_count": 0, "total": 0, "rate": 0.0,
                 "sample_low": [], "sample_high": []}
 
@@ -103,12 +106,19 @@ def _temporal_outliers(
     Uses format='mixed' (pandas ≥ 2.0) so that bare dates ('1970-01-01')
     and full timestamps ('2024-01-01 00:00:00') coexist in the same column
     without causing silent NaT coercion.
+
+    utc=True is required: without it, a column containing mixed UTC offsets
+    parses to object dtype rather than datetime64, which breaks the .dt
+    accessor below. Normalising to UTC is safe here because we only compare
+    the calendar year against a plausible range.
     """
     try:
-        parsed = pd.to_datetime(series, errors="coerce", format="mixed").dropna()
-    except TypeError:
+        parsed = pd.to_datetime(
+            series, errors="coerce", format="mixed", utc=True
+        ).dropna()
+    except (TypeError, ValueError):
         # Fallback for older pandas versions without format='mixed'.
-        parsed = pd.to_datetime(series, errors="coerce").dropna()
+        parsed = pd.to_datetime(series, errors="coerce", utc=True).dropna()
 
     if parsed.empty:
         return {"total": 0, "rate": 0.0, "sample": []}
@@ -132,9 +142,20 @@ def _temporal_outliers(
 # ---------------------------------------------------------------------------
 
 def _fmt(v: Any) -> str:
-    if isinstance(v, float) and v == int(v):
-        return str(int(v))
+    """Format a value for display.
+
+    Guards against non-finite floats: int(inf) raises OverflowError and
+    int(nan) raises ValueError, so both are short-circuited before any
+    integer conversion is attempted. Extreme magnitudes (e.g. 1e308) can
+    overflow to inf during mean/std aggregation on real-world data.
+    """
     if isinstance(v, float):
+        if math.isnan(v):
+            return "NaN"
+        if math.isinf(v):
+            return "Infinity" if v > 0 else "-Infinity"
+        if v == int(v):
+            return str(int(v))
         return str(round(v, 4))
     return str(v)
 
@@ -156,9 +177,9 @@ def _is_timestamp_col(series: pd.Series) -> bool:
     if sample.empty:
         return False
     try:
-        parsed = pd.to_datetime(sample, errors="coerce", format="mixed")
-    except TypeError:
-        parsed = pd.to_datetime(sample, errors="coerce")
+        parsed = pd.to_datetime(sample, errors="coerce", format="mixed", utc=True)
+    except (TypeError, ValueError):
+        parsed = pd.to_datetime(sample, errors="coerce", utc=True)
     return parsed.notna().mean() >= 0.8
 
 

@@ -128,9 +128,50 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     dd_cfg = config.get("data_dictionary", {})
+
+    if "csv_path" not in dd_cfg:
+        print(
+            "Config error: 'data_dictionary.csv_path' is not set.\n"
+            f"  Add it to {config_path} and point it at your CSV file.",
+            file=sys.stderr,
+        )
+        return 1
+
     csv_path = (base_dir / dd_cfg["csv_path"]).resolve()
+    if not csv_path.is_file():
+        print(
+            f"CSV not found: {csv_path}\n"
+            f"  Check 'data_dictionary.csv_path' in {config_path}.\n"
+            f"  Relative paths are resolved against {base_dir}.",
+            file=sys.stderr,
+        )
+        return 1
+
+    dict_path_cfg = dd_cfg.get("dictionary_path")
+    if dict_path_cfg:
+        dict_path = (base_dir / dict_path_cfg).resolve()
+        if not dict_path.is_file():
+            print(
+                f"Data dictionary not found: {dict_path}\n"
+                f"  Check 'data_dictionary.dictionary_path' in {config_path}.\n"
+                f"  Relative paths are resolved against {base_dir}.",
+                file=sys.stderr,
+            )
+            return 1
+
     sample_rows = int(dd_cfg.get("sample_rows", 50_000))
-    sample_df = pd.read_csv(csv_path, nrows=sample_rows, low_memory=False)
+    try:
+        sample_df = pd.read_csv(csv_path, nrows=sample_rows, low_memory=False)
+    except Exception as exc:
+        print(
+            f"Failed to read CSV: {csv_path}\n  {type(exc).__name__}: {exc}",
+            file=sys.stderr,
+        )
+        return 1
+
+    if sample_df.empty:
+        print(f"CSV contains no data rows: {csv_path}", file=sys.stderr)
+        return 1
 
     ctx = RunContext(base_dir=base_dir, config=config, sample_df=sample_df)
 

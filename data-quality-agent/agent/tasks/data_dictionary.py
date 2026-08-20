@@ -101,10 +101,12 @@ def _check_timestamp(series: pd.Series, threshold: float) -> tuple[bool, str]:
     s = series.dropna()
     if s.empty:
         return True, "all null (handled by missing values task)"
+    # utc=True avoids object-dtype results (and a FutureWarning) when the
+    # column mixes UTC offsets; we only measure parse success rate here.
     try:
-        parsed = pd.to_datetime(s, errors="coerce", format="mixed")
-    except TypeError:
-        parsed = pd.to_datetime(s, errors="coerce")
+        parsed = pd.to_datetime(s, errors="coerce", format="mixed", utc=True)
+    except (TypeError, ValueError):
+        parsed = pd.to_datetime(s, errors="coerce", utc=True)
     fail_rate = parsed.isna().sum() / len(s)
     if fail_rate >= threshold:
         sample = s[parsed.isna()].astype(str).head(5).tolist()

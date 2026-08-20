@@ -2,6 +2,10 @@
 
 A configurable Python agent for validating tabular datasets against a markdown data dictionary. Given a CSV and a schema definition, it detects missing column coverage, type inconsistencies, and null-value anomalies — then surfaces findings through an interactive review loop that learns which issues are false positives, so each subsequent run is cleaner than the last. Built to be dataset-agnostic: no hardcoded schema assumptions, all thresholds configurable via YAML.
 
+> **New here? Start with [QUICKSTART.md](QUICKSTART.md)** — a step-by-step guide
+> that has you running the agent on bundled synthetic data in about two minutes,
+> then on a real 24-million-row public dataset. No download needed for the first run.
+
 ---
 
 ## What it does
@@ -89,6 +93,20 @@ python -m venv .venv
 source .venv/bin/activate       # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
+
+Note the doubled path: the repository root contains a folder of the same name,
+and the runner must be invoked from the inner one.
+
+To see the agent produce reports immediately — no dataset required — generate
+the bundled synthetic data and run every check against it:
+
+```bash
+python ci/generate_ci_data.py
+python -m agent.runner --config ci/ci_agent_config.yaml
+```
+
+[QUICKSTART.md](QUICKSTART.md) walks through this in detail, adds a real-world
+public dataset, and covers the common first-run errors.
 
 ---
 

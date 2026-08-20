@@ -1,0 +1,138 @@
+# NYC 311 Service Requests — example config for the Data Quality Agent
+#
+# Run from the data-quality-agent/ directory:
+#   python -m agent.runner --config ../examples/nyc311/agent_config.yaml
+#
+# Download the CSV first — see examples/nyc311/README.md
+
+data_dictionary:
+  csv_path: "../examples/nyc311/nyc311.csv"
+  dictionary_path: "../examples/nyc311/NYC_311_Data_Dictionary.md"
+  sample_rows: 50000
+  case_insensitive_column_match: true
+  inconsistency_threshold: 0.05
+  reports_dir: "../examples/nyc311/reports"
+  knowledge_base_path: "../examples/nyc311/learnings.json"
+
+html_report:
+  enabled: true
+
+llm_dedup:
+  enabled: false
+  model: "claude-haiku-4-5-20251001"
+  min_similarity: 0.70
+  max_pairs_per_column: 10
+  timeout: 10
+
+missing_values:
+  high_null_threshold: 0.50
+  always_null_threshold: 1.00
+  reports_dir: "../examples/nyc311/reports"
+  knowledge_base_path: "../examples/nyc311/learnings.json"
+
+data_types:
+  categorical_cardinality_max: 25
+  uniqueness_id_threshold: 0.99
+  sample_values_count: 5
+  reports_dir: "../examples/nyc311/reports"
+
+impossible_values:
+  reports_dir: "../examples/nyc311/reports"
+  knowledge_base_path: "../examples/nyc311/learnings.json"
+  min_violation_rate: 0.0
+  rules:
+    # NYC sits within these bounds — anything outside is a bad geocode.
+    - label: latitude_nyc_range
+      column: latitude
+      min: 40.4
+      max: 41.0
+      description: "Latitude must fall within NYC bounds (40.4–41.0)"
+
+    - label: longitude_nyc_range
+      column: longitude
+      min: -74.3
+      max: -73.6
+      description: "Longitude must fall within NYC bounds (-74.3 to -73.6)"
+
+    # A request cannot be closed before it was created.
+    - label: created_before_closed
+      type: date_order
+      earlier: created_date
+      later: closed_date
+      description: "Service request must be created before it is closed"
+
+    - label: created_before_resolution_update
+      type: date_order
+      earlier: created_date
+      later: resolution_action_updated_date
+      description: "Resolution update must not precede creation"
+
+    # Closed requests should carry a closed date.
+    - label: closed_date_if_closed
+      type: not_null_if
+      when_column: status
+      when_value: "Closed"
+      then_column: closed_date
+      description: "Requests with status Closed should have a closed_date"
+
+invalid_entries:
+  reports_dir: "../examples/nyc311/reports"
+  knowledge_base_path: "../examples/nyc311/learnings.json"
+  min_violation_rate: 0.0
+  check_placeholders: true
+  check_whitespace: true
+  rules:
+    - label: borough_enum
+      type: enum
+      column: borough
+      allowed: [BRONX, BROOKLYN, MANHATTAN, QUEENS, STATEN ISLAND, Unspecified]
+      case_insensitive: true
+      description: "Borough must be one of the five boroughs or Unspecified"
+
+    - label: channel_enum
+      type: enum
+      column: open_data_channel_type
+      allowed: [PHONE, ONLINE, MOBILE, OTHER, UNKNOWN]
+      case_insensitive: true
+      description: "Channel must be Phone, Online, Mobile, Other or Unknown"
+
+    - label: zip_format
+      type: pattern
+      column: incident_zip
+      pattern: '^\d{5}(-\d{4})?$'
+      description: "Incident zip must be a 5-digit ZIP or ZIP+4"
+
+outliers:
+  reports_dir: "../examples/nyc311/reports"
+  knowledge_base_path: "../examples/nyc311/learnings.json"
+  iqr_multiplier: 1.5
+  zscore_threshold: 3.0
+  min_non_null_rows: 30
+  temporal_min_year: 2010
+  temporal_max_year: 2027
+  columns_exclude:
+    - unique_key
+    - bbl
+    - x_coordinate_state_plane
+    - y_coordinate_state_plane
+
+categorical_cleaning:
+  reports_dir: "../examples/nyc311/reports"
+  knowledge_base_path: "../examples/nyc311/learnings.json"
+  max_cardinality: 60
+  similarity_threshold: 0.85
+  low_frequency_threshold: 0.01
+  columns_include: []
+  columns_exclude:
+    - unique_key
+    - incident_address
+    - street_name
+    - cross_street_1
+    - cross_street_2
+    - intersection_street_1
+    - intersection_street_2
+    - resolution_description
+    - landmark
+    - bbl
+    - location
+    - taxi_pick_up_location

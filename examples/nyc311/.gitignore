@@ -1,0 +1,8 @@
+# Downloaded sample data — not committed
+nyc311.csv
+*.csv
+
+# Generated output
+reports/*.md
+reports/*.html
+learnings.json
